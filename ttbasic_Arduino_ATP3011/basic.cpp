@@ -32,7 +32,7 @@ void io_init()
 
 // Depending on device functions
 // TO-DO Rewrite these functions to fit your machine
-#define STR_EDITION "ARDUINO+ATP3011"
+#define STR_EDITION "ARDUINO + ATP3011"
 
 // Terminal control
 #define c_putch(c) Serial.write(c)
@@ -59,7 +59,7 @@ const char *kwtbl[] = {
   "FOR", "TO", "STEP", "NEXT",
   "IF", "REM", "STOP",
   "INPUT", "PRINT", "LET",
-  "KTALK", "TALK",            // KTALK：数字の桁読み用
+  "KTALK", "TALK", "WAIT",            // KTALK：数字の桁読み用
   ",", ";",
   "-", "+", "*", "/", "(", ")",
   ">=", "#", ">", "=", "<=", "<",
@@ -76,7 +76,7 @@ enum {
   I_FOR, I_TO, I_STEP, I_NEXT,
   I_IF, I_REM, I_STOP,
   I_INPUT, I_PRINT, I_LET,
-  I_KTALK, I_TALK,            //
+  I_KTALK, I_TALK, I_WAIT,            //
   I_COMMA, I_SEMI,
   I_MINUS, I_PLUS, I_MUL, I_DIV, I_OPEN, I_CLOSE,
   I_GTE, I_SHARP, I_GT, I_EQ, I_LTE, I_LT,
@@ -1116,6 +1116,7 @@ unsigned char* iexe() {
   unsigned char* lp; //未確定の（エラーかもしれない）行ポインタ
   short index, vto, vstep; //FOR文の変数番号、終了値、増分
   short condition; //IF文の条件値
+  short t;
 
   while (*cip != I_EOL) { //行末まで繰り返す
   
@@ -1311,6 +1312,13 @@ unsigned char* iexe() {
         cip++;
         iktalk();
         break;
+   case I_WAIT: //WAITの場合
+      cip++;
+      t = iexp();
+      if(err) return NULL;
+      if(t < 0) t = 0;
+      delay(t);
+      break;
 
     case I_NEW: //中間コードがNEWの場合
     case I_LIST: //中間コードがLISTの場合
